@@ -101,6 +101,10 @@ stmt
         { printf("stmt -> break ;\n"); }
     | block
         { printf("stmt -> block\n"); }
+    | error SEMIC
+        { printf("Recovered from a bad statement (missing ';').\n"); yyerrok; }
+    | error RIGHTBRACE
+        { printf("Recovered from a bad block (found the closing '}' for this block).\n"); yyerrok; }
     ;
 
 loc
@@ -186,59 +190,9 @@ factor
         { printf("factor -> BOOLCONST\n"); }
     ;
 
-/*program
-    : stmt_list
-        { printf("program -> stmt_list\n"); }
-    ;
-
-stmt_list
-    : stmt_list stmt
-        { printf("stmt_list -> stmt_list stmt\n"); }
-    | stmt
-        { printf("stmt_list -> stmt\n"); }
-    ;
-
-stmt
-    : loc ASSIGN expr SEMI
-        { printf("stmt -> loc ASSIGN expr SEMI\n"); }
-    | IF expr THEN stmt
-        { printf("stmt -> IF expr THEN stmt\n"); }
-    | WHILE expr DO stmt
-        { printf("stmt -> WHILE expr DO stmt\n"); }
-    | BEGIN stmt_list END
-        { printf("stmt -> BEGIN stmt_list END\n"); }
-    | error SEMI
-        {
-            printf("Error recovered at statement boundary.\n");
-            yyerrok; 
-        }
-    ;
-
-loc
-    : ID
-        {
-            printf("loc -> ID\n");
-            add_symbol(yytext); 
-        }
-    ;
-
-expr
-    : expr ADDOP expr
-        { printf("expr -> expr ADDOP expr\n"); }
-    | expr MULOP expr
-        { printf("expr -> expr MULOP expr\n"); }
-    | LPAREN expr RPAREN
-        { printf("expr -> LPAREN expr RPAREN\n"); }
-    | NUM
-        { printf("expr -> NUM\n"); }
-    | loc
-        { printf("expr -> loc\n"); }
-    ;
-*/
 %%
 
-/* ------------------- Supporting C Code ------------------- */
-void yyerror(const char *s) {
+void yyerror(const char *s) { //Completely stops parsing if error is not recoverable.
     fprintf(stderr, "Syntax error: %s\n", s);
 }
 
