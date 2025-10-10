@@ -1,0 +1,4 @@
+*.ans
+*.txt
+lexerTEST.l
+validate/*
