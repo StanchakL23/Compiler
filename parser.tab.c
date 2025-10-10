@@ -83,6 +83,9 @@ int symbol_count = 0;
 /* Helper function to add identifiers to symbol table */
 void add_symbol(const char *sym) {
     if (symbol_count < MAX_SYMBOLS) {
+        for ( int i = 0, found = 0; i < symbol_count; i++) {
+            if (strcmp(symbol_table[i], sym) == 0) {return;}
+        }
         symbol_table[symbol_count++] = strdup(sym);
     }
 }
@@ -91,7 +94,7 @@ void add_symbol(const char *sym) {
 void yyerror(const char *s);
 int yylex(void);
 
-#line 95 "parser.tab.c"
+#line 98 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -560,11 +563,11 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    46,    46,    51,    56,    59,    63,    68,    73,    76,
-      80,    83,    87,    89,    91,    93,    95,    97,    99,   104,
-     106,   111,   113,   118,   120,   125,   127,   129,   134,   136,
-     138,   140,   142,   147,   149,   151,   156,   158,   160,   165,
-     167,   169,   174,   176,   178,   180,   182
+       0,    49,    49,    54,    59,    62,    66,    71,    76,    79,
+      83,    86,    90,    92,    94,    96,    98,   100,   102,   107,
+     109,   114,   116,   121,   123,   128,   130,   132,   137,   139,
+     141,   143,   145,   150,   152,   154,   159,   161,   163,   168,
+     170,   172,   177,   179,   181,   183,   185
 };
 #endif
 
@@ -1180,277 +1183,277 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: block  */
-#line 47 "parser.y"
+#line 50 "parser.y"
         { printf("program -> block\n"); }
-#line 1186 "parser.tab.c"
+#line 1189 "parser.tab.c"
     break;
 
   case 3: /* block: LEFTBRACE decls stmts RIGHTBRACE  */
-#line 52 "parser.y"
+#line 55 "parser.y"
         { printf("block -> decls stmts\n"); }
-#line 1192 "parser.tab.c"
+#line 1195 "parser.tab.c"
     break;
 
   case 4: /* decls: decl decls  */
-#line 57 "parser.y"
+#line 60 "parser.y"
         { printf("decls -> decl decls\n"); }
-#line 1198 "parser.tab.c"
+#line 1201 "parser.tab.c"
     break;
 
   case 5: /* decls: %empty  */
-#line 59 "parser.y"
+#line 62 "parser.y"
         { printf("decls -> e\n"); }
-#line 1204 "parser.tab.c"
+#line 1207 "parser.tab.c"
     break;
 
   case 6: /* decl: type ID SEMIC  */
-#line 64 "parser.y"
+#line 67 "parser.y"
         { printf("decl -> type ID SEMIC\n"); add_symbol((yyvsp[-1].str)); }
-#line 1210 "parser.tab.c"
+#line 1213 "parser.tab.c"
     break;
 
   case 7: /* type: BASIC type1  */
-#line 69 "parser.y"
+#line 72 "parser.y"
         { printf("type -> BASIC type1\n"); }
-#line 1216 "parser.tab.c"
+#line 1219 "parser.tab.c"
     break;
 
   case 8: /* type1: type1 LEFTBRACK NUM RIGHTBRACK  */
-#line 74 "parser.y"
+#line 77 "parser.y"
         { printf("type1 -> type1 [ NUM ]\n"); }
-#line 1222 "parser.tab.c"
+#line 1225 "parser.tab.c"
     break;
 
   case 9: /* type1: %empty  */
-#line 76 "parser.y"
+#line 79 "parser.y"
         { printf("type1 -> e\n"); }
-#line 1228 "parser.tab.c"
+#line 1231 "parser.tab.c"
     break;
 
   case 10: /* stmts: stmt stmts  */
-#line 81 "parser.y"
+#line 84 "parser.y"
         { printf("stmts -> stmt stmts\n"); }
-#line 1234 "parser.tab.c"
+#line 1237 "parser.tab.c"
     break;
 
   case 11: /* stmts: %empty  */
-#line 83 "parser.y"
+#line 86 "parser.y"
         { printf("stmts -> e\n"); }
-#line 1240 "parser.tab.c"
+#line 1243 "parser.tab.c"
     break;
 
   case 12: /* stmt: loc ASSIGN bool SEMIC  */
-#line 88 "parser.y"
+#line 91 "parser.y"
         { printf("stmt -> loc = bool ;\n"); }
-#line 1246 "parser.tab.c"
+#line 1249 "parser.tab.c"
     break;
 
   case 13: /* stmt: IF_ LEFTPARAN bool RIGHTPARAN stmt  */
-#line 90 "parser.y"
+#line 93 "parser.y"
         { printf("stmt -> if ( bool ) stmt\n"); }
-#line 1252 "parser.tab.c"
+#line 1255 "parser.tab.c"
     break;
 
   case 14: /* stmt: IF_ LEFTPARAN bool RIGHTPARAN stmt ELSE_ stmt  */
-#line 92 "parser.y"
+#line 95 "parser.y"
         { printf("stmt -> if ( bool ) stmt else stmt\n"); }
-#line 1258 "parser.tab.c"
+#line 1261 "parser.tab.c"
     break;
 
   case 15: /* stmt: WHILE_ LEFTPARAN bool RIGHTPARAN stmt  */
-#line 94 "parser.y"
+#line 97 "parser.y"
         { printf("stmt -> while ( bool ) stmt\n"); }
-#line 1264 "parser.tab.c"
+#line 1267 "parser.tab.c"
     break;
 
   case 16: /* stmt: DO stmt WHILE_ LEFTPARAN bool RIGHTPARAN SEMIC  */
-#line 96 "parser.y"
+#line 99 "parser.y"
         { printf("stmt -> do stmt while ( bool ) ;\n"); }
-#line 1270 "parser.tab.c"
+#line 1273 "parser.tab.c"
     break;
 
   case 17: /* stmt: BREAK_ SEMIC  */
-#line 98 "parser.y"
+#line 101 "parser.y"
         { printf("stmt -> break ;\n"); }
-#line 1276 "parser.tab.c"
+#line 1279 "parser.tab.c"
     break;
 
   case 18: /* stmt: block  */
-#line 100 "parser.y"
+#line 103 "parser.y"
         { printf("stmt -> block\n"); }
-#line 1282 "parser.tab.c"
+#line 1285 "parser.tab.c"
     break;
 
   case 19: /* loc: loc LEFTBRACK bool RIGHTBRACK  */
-#line 105 "parser.y"
+#line 108 "parser.y"
         { printf("loc -> loc [ bool ]\n"); }
-#line 1288 "parser.tab.c"
+#line 1291 "parser.tab.c"
     break;
 
   case 20: /* loc: ID  */
-#line 107 "parser.y"
+#line 110 "parser.y"
         { printf("loc -> ID\n"); add_symbol((yyvsp[0].str)); }
-#line 1294 "parser.tab.c"
+#line 1297 "parser.tab.c"
     break;
 
   case 21: /* bool: bool OR join  */
-#line 112 "parser.y"
+#line 115 "parser.y"
         { printf("bool -> bool || join\n"); }
-#line 1300 "parser.tab.c"
+#line 1303 "parser.tab.c"
     break;
 
   case 22: /* bool: join  */
-#line 114 "parser.y"
+#line 117 "parser.y"
         { printf("bool -> join\n"); }
-#line 1306 "parser.tab.c"
+#line 1309 "parser.tab.c"
     break;
 
   case 23: /* join: join AND equality  */
-#line 119 "parser.y"
+#line 122 "parser.y"
         { printf("join -> join && equality\n"); }
-#line 1312 "parser.tab.c"
+#line 1315 "parser.tab.c"
     break;
 
   case 24: /* join: equality  */
-#line 121 "parser.y"
+#line 124 "parser.y"
         { printf("join -> equality\n"); }
-#line 1318 "parser.tab.c"
+#line 1321 "parser.tab.c"
     break;
 
   case 25: /* equality: equality EQUALS rel  */
-#line 126 "parser.y"
+#line 129 "parser.y"
         { printf("equality -> equality == rel\n"); }
-#line 1324 "parser.tab.c"
+#line 1327 "parser.tab.c"
     break;
 
   case 26: /* equality: equality NE rel  */
-#line 128 "parser.y"
+#line 131 "parser.y"
         { printf("equality -> equality != rel\n"); }
-#line 1330 "parser.tab.c"
+#line 1333 "parser.tab.c"
     break;
 
   case 27: /* equality: rel  */
-#line 130 "parser.y"
+#line 133 "parser.y"
         { printf("equality -> rel\n"); }
-#line 1336 "parser.tab.c"
+#line 1339 "parser.tab.c"
     break;
 
   case 28: /* rel: expr LT expr  */
-#line 135 "parser.y"
+#line 138 "parser.y"
         { printf("rel -> expr < expr\n"); }
-#line 1342 "parser.tab.c"
+#line 1345 "parser.tab.c"
     break;
 
   case 29: /* rel: expr LE expr  */
-#line 137 "parser.y"
+#line 140 "parser.y"
         { printf("rel -> expr <= expr\n"); }
-#line 1348 "parser.tab.c"
+#line 1351 "parser.tab.c"
     break;
 
   case 30: /* rel: expr GT expr  */
-#line 139 "parser.y"
+#line 142 "parser.y"
         { printf("rel -> expr > expr\n"); }
-#line 1354 "parser.tab.c"
+#line 1357 "parser.tab.c"
     break;
 
   case 31: /* rel: expr GE expr  */
-#line 141 "parser.y"
+#line 144 "parser.y"
         { printf("rel -> expr >= expr\n"); }
-#line 1360 "parser.tab.c"
+#line 1363 "parser.tab.c"
     break;
 
   case 32: /* rel: expr  */
-#line 143 "parser.y"
+#line 146 "parser.y"
         { printf("rel -> expr\n"); }
-#line 1366 "parser.tab.c"
+#line 1369 "parser.tab.c"
     break;
 
   case 33: /* expr: expr PLUS term  */
-#line 148 "parser.y"
+#line 151 "parser.y"
         { printf("expr -> expr + term\n"); }
-#line 1372 "parser.tab.c"
+#line 1375 "parser.tab.c"
     break;
 
   case 34: /* expr: expr MINUS term  */
-#line 150 "parser.y"
+#line 153 "parser.y"
         { printf("expr -> expr - term\n"); }
-#line 1378 "parser.tab.c"
+#line 1381 "parser.tab.c"
     break;
 
   case 35: /* expr: term  */
-#line 152 "parser.y"
+#line 155 "parser.y"
         { printf("expr -> term\n"); }
-#line 1384 "parser.tab.c"
+#line 1387 "parser.tab.c"
     break;
 
   case 36: /* term: term MULTIPLY unary  */
-#line 157 "parser.y"
+#line 160 "parser.y"
         { printf("term -> term * unary\n"); }
-#line 1390 "parser.tab.c"
+#line 1393 "parser.tab.c"
     break;
 
   case 37: /* term: term DIVIDE unary  */
-#line 159 "parser.y"
+#line 162 "parser.y"
         { printf("term -> term / unary\n"); }
-#line 1396 "parser.tab.c"
+#line 1399 "parser.tab.c"
     break;
 
   case 38: /* term: unary  */
-#line 161 "parser.y"
+#line 164 "parser.y"
         { printf("term -> unary\n"); }
-#line 1402 "parser.tab.c"
+#line 1405 "parser.tab.c"
     break;
 
   case 39: /* unary: NOT unary  */
-#line 166 "parser.y"
+#line 169 "parser.y"
         { printf("unary -> ! unary\n"); }
-#line 1408 "parser.tab.c"
+#line 1411 "parser.tab.c"
     break;
 
   case 40: /* unary: MINUS unary  */
-#line 168 "parser.y"
+#line 171 "parser.y"
         { printf("unary -> - unary\n"); }
-#line 1414 "parser.tab.c"
+#line 1417 "parser.tab.c"
     break;
 
   case 41: /* unary: factor  */
-#line 170 "parser.y"
+#line 173 "parser.y"
         { printf("unary -> factor\n"); }
-#line 1420 "parser.tab.c"
+#line 1423 "parser.tab.c"
     break;
 
   case 42: /* factor: LEFTPARAN bool RIGHTPARAN  */
-#line 175 "parser.y"
+#line 178 "parser.y"
         { printf("factor -> ( bool )\n"); }
-#line 1426 "parser.tab.c"
+#line 1429 "parser.tab.c"
     break;
 
   case 43: /* factor: loc  */
-#line 177 "parser.y"
+#line 180 "parser.y"
         { printf("factor -> loc\n"); }
-#line 1432 "parser.tab.c"
+#line 1435 "parser.tab.c"
     break;
 
   case 44: /* factor: NUM  */
-#line 179 "parser.y"
+#line 182 "parser.y"
         { printf("factor -> NUM\n"); }
-#line 1438 "parser.tab.c"
+#line 1441 "parser.tab.c"
     break;
 
   case 45: /* factor: REAL  */
-#line 181 "parser.y"
+#line 184 "parser.y"
         { printf("factor -> REAL\n"); }
-#line 1444 "parser.tab.c"
+#line 1447 "parser.tab.c"
     break;
 
   case 46: /* factor: BOOLCONST  */
-#line 183 "parser.y"
+#line 186 "parser.y"
         { printf("factor -> BOOLCONST\n"); }
-#line 1450 "parser.tab.c"
+#line 1453 "parser.tab.c"
     break;
 
 
-#line 1454 "parser.tab.c"
+#line 1457 "parser.tab.c"
 
       default: break;
     }
@@ -1643,7 +1646,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 235 "parser.y"
+#line 238 "parser.y"
 
 
 /* ------------------- Supporting C Code ------------------- */
