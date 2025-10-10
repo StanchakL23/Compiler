@@ -9,7 +9,7 @@ enum { //token types/codes for parser
     WHILE_, IF_, ELSE_, RETURN_, BREAK_, DO,
     LEFTBRACE, RIGHTBRACE, SEMIC, EQUALS, PLUS,
     MINUS, LEFTPARAN, RIGHTPARAN, LT, GT, LE, GE,
-    LEFTBRACK, RIGHTBRACK, AND, OR, NE, ASSIGN, NOT
+    LEFTBRACK, RIGHTBRACK, AND, OR, NE, ASSIGN, NOT, MULTIPLY, DIVIDE
 };
 
 typedef union {  //yylval object types for Bison use
@@ -84,6 +84,8 @@ real        {digit}+"."{digit}*
 "||"        { printf("|| "); return OR; }
 "!="         { printf("!= "); return NE; }
 "!"         { printf("! "); return NOT; }
+"*"         { printf("* "); return MULTIPLY; }
+"/"         { printf("/ "); return DIVIDE;}
 
 {basic}     { yylval.strVal = strdup(yytext); printf("basic "); return BASIC; }
 
