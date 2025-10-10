@@ -99,6 +99,8 @@ stmt
         { printf("stmt -> do stmt while ( bool ) ;\n"); }
     | BREAK_ SEMIC
         { printf("stmt -> break ;\n"); }
+    | RETURN_ bool SEMIC
+        { printf("stmt -> return bool ;\n"); }
     | block
         { printf("stmt -> block\n"); }
     | error SEMIC
@@ -198,7 +200,12 @@ void yyerror(const char *s) { //Completely stops parsing if error is not recover
 
 int main(void) {
     printf("Starting parse...\n");
-    yyparse();
+    int result = yyparse();
+
+    if (result != 0) {
+        printf("Unrecoverable syntax error encountered. Parsing terminated.\n");
+        return 1;
+    }
 
     printf("\nParsing complete.\nSymbol table:\n");
     for (int i = 0; i < symbol_count; i++)
