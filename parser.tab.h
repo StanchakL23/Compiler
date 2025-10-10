@@ -54,45 +54,57 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    BASIC = 258,                   /* BASIC  */
-    ID = 259,                      /* ID  */
-    NUM = 260,                     /* NUM  */
-    REAL = 261,                    /* REAL  */
-    BOOLCONST = 262,               /* BOOLCONST  */
-    WHILE_ = 263,                  /* WHILE_  */
-    IF_ = 264,                     /* IF_  */
-    ELSE_ = 265,                   /* ELSE_  */
-    RETURN_ = 266,                 /* RETURN_  */
-    BREAK_ = 267,                  /* BREAK_  */
-    DO = 268,                      /* DO  */
-    LEFTBRACE = 269,               /* LEFTBRACE  */
-    RIGHTBRACE = 270,              /* RIGHTBRACE  */
-    SEMIC = 271,                   /* SEMIC  */
-    EQUALS = 272,                  /* EQUALS  */
-    PLUS = 273,                    /* PLUS  */
-    MINUS = 274,                   /* MINUS  */
-    LEFTPARAN = 275,               /* LEFTPARAN  */
-    RIGHTPARAN = 276,              /* RIGHTPARAN  */
-    LT = 277,                      /* LT  */
-    GT = 278,                      /* GT  */
-    LE = 279,                      /* LE  */
-    GE = 280,                      /* GE  */
-    LEFTBRACK = 281,               /* LEFTBRACK  */
-    RIGHTBRACK = 282,              /* RIGHTBRACK  */
-    AND = 283,                     /* AND  */
-    OR = 284,                      /* OR  */
-    NE = 285,                      /* NE  */
-    ASSIGN = 286,                  /* ASSIGN  */
-    NOT = 287,                     /* NOT  */
-    MULTIPLY = 288,                /* MULTIPLY  */
-    DIVIDE = 289                   /* DIVIDE  */
+    WHILE_ = 258,                  /* WHILE_  */
+    IF_ = 259,                     /* IF_  */
+    ELSE_ = 260,                   /* ELSE_  */
+    RETURN_ = 261,                 /* RETURN_  */
+    BREAK_ = 262,                  /* BREAK_  */
+    DO = 263,                      /* DO  */
+    LEFTBRACE = 264,               /* LEFTBRACE  */
+    RIGHTBRACE = 265,              /* RIGHTBRACE  */
+    SEMIC = 266,                   /* SEMIC  */
+    EQUALS = 267,                  /* EQUALS  */
+    PLUS = 268,                    /* PLUS  */
+    MINUS = 269,                   /* MINUS  */
+    LEFTPARAN = 270,               /* LEFTPARAN  */
+    RIGHTPARAN = 271,              /* RIGHTPARAN  */
+    LT = 272,                      /* LT  */
+    GT = 273,                      /* GT  */
+    LE = 274,                      /* LE  */
+    GE = 275,                      /* GE  */
+    LEFTBRACK = 276,               /* LEFTBRACK  */
+    RIGHTBRACK = 277,              /* RIGHTBRACK  */
+    AND = 278,                     /* AND  */
+    OR = 279,                      /* OR  */
+    NE = 280,                      /* NE  */
+    ASSIGN = 281,                  /* ASSIGN  */
+    NOT = 282,                     /* NOT  */
+    MULTIPLY = 283,                /* MULTIPLY  */
+    DIVIDE = 284,                  /* DIVIDE  */
+    ID = 285,                      /* ID  */
+    BASIC = 286,                   /* BASIC  */
+    NUM = 287,                     /* NUM  */
+    REAL = 288,                    /* REAL  */
+    BOOLCONST = 289                /* BOOLCONST  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 25 "parser.y"
+
+    char *str;
+    int num;
+    float real;
+    bool bVal;
+
+#line 105 "parser.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

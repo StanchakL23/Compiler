@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 /* Temporary symbol table as a list */
 #define MAX_SYMBOLS 100
@@ -12,6 +13,9 @@ int symbol_count = 0;
 /* Helper function to add identifiers to symbol table */
 void add_symbol(const char *sym) {
     if (symbol_count < MAX_SYMBOLS) {
+        for ( int i = 0, found = 0; i < symbol_count; i++) {
+            if (strcmp(symbol_table[i], sym) == 0) {return;}
+        }
         symbol_table[symbol_count++] = strdup(sym);
     }
 }
@@ -21,10 +25,21 @@ void yyerror(const char *s);
 int yylex(void);
 %}
 
+%union {
+    char *str;
+    int num;
+    float real;
+    bool bVal;
+}
+
 // TOKEN DECLARATION
-%token BASIC ID NUM REAL BOOLCONST WHILE_ IF_ ELSE_ RETURN_ BREAK_ DO
+%token WHILE_ IF_ ELSE_ RETURN_ BREAK_ DO
 %token LEFTBRACE RIGHTBRACE SEMIC EQUALS PLUS MINUS LEFTPARAN RIGHTPARAN 
 %token LT GT LE GE LEFTBRACK RIGHTBRACK AND OR NE ASSIGN NOT MULTIPLY DIVIDE
+%token <str> ID BASIC
+%token <num> NUM
+%token <real> REAL
+%token <bVal> BOOLCONST
 
 %start program
 
@@ -41,8 +56,8 @@ block
     ;
 
 decls
-    : decls decl
-        { printf("decls -> decls decl\n"); }
+    : decl decls
+        { printf("decls -> decl decls\n"); }
     | /* empty */
         { printf("decls -> e\n"); }
     ;
@@ -53,15 +68,20 @@ decl
     ;
 
 type
-    : type '[' NUM ']'
-        { printf("type -> type '[' NUM ']'\n"); }
-    | BASIC
-        { printf("type -> BASIC\n"); }
+    : BASIC type1
+        { printf("type -> BASIC type1\n"); }
+    ;
+
+type1
+    : type1 LEFTBRACK NUM RIGHTBRACK
+        { printf("type1 -> type1 [ NUM ]\n"); }
+    | /* empty */
+        { printf("type1 -> e\n"); }
     ;
 
 stmts
-    : stmts stmt
-        { printf("stmts -> stmts stmt\n"); }
+    : stmt stmts
+        { printf("stmts -> stmt stmts\n"); }
     | /* empty */
         { printf("stmts -> e\n"); }
     ;

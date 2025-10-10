@@ -3,39 +3,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "parser.tab.h" //include token definitions from Bison
 
-enum { //token types/codes for parser
-    BASIC = 256, ID, NUM, REAL, BOOLCONST,
-    WHILE_, IF_, ELSE_, RETURN_, BREAK_, DO,
-    LEFTBRACE, RIGHTBRACE, SEMIC, EQUALS, PLUS,
-    MINUS, LEFTPARAN, RIGHTPARAN, LT, GT, LE, GE,
-    LEFTBRACK, RIGHTBRACK, AND, OR, NE, ASSIGN, NOT, MULTIPLY, DIVIDE
-};
-
-typedef union {  //yylval object types for Bison use
-    int intVal;
-    double dVal;
-    char *strVal;
-    bool bVal;
-
-} YYSTYPE;
-YYSTYPE yylval;
-
-// symbol table (implemented temporarily as a list)
-//My assignment 1 is in Java, and i will 
-//convert to C before assignment 3 for scope implementation
-#define MAX_SYMBOLS 500
-char * symbols[MAX_SYMBOLS];
-int symbol_count = 0;
+// Temporary symbol table implemented in parser
 extern FILE *yyin;
-
-void insertSymbol(const char *s) {
-    //Check to make sure the symbol doesn't already exist
-    for (int i = 0; i < symbol_count; i++) {
-        if (strcmp(symbols[i], s) == 0) return;
-    }
-    symbols[symbol_count++] = strdup(s);
-}
 
 int yywrap( void ) {
     return 1;
@@ -55,47 +26,47 @@ real        {digit}+"."{digit}*
 %%
 {ws}        { /* ignore whitespace */ }
 
-"true"      { yylval.bVal = true; printf("true "); return BOOLCONST; }
-"false"     { yylval.bVal = false; printf("false "); return BOOLCONST; }
+"true"      { yylval.bVal = true; return BOOLCONST; }
+"false"     { yylval.bVal = false; return BOOLCONST; }
 
-"while"     { printf("while "); return WHILE_; }
-"if"        { printf("if "); return IF_; }
-"else"      { printf("else "); return ELSE_; }
-"return"    { printf("return "); return RETURN_; }
-"break"     { printf("break "); return BREAK_; }
-"do"        { printf("do "); return DO; }
+"while"     { return WHILE_; }
+"if"        { return IF_; }
+"else"      { return ELSE_; }
+"return"    { return RETURN_; }
+"break"     { return BREAK_; }
+"do"        { return DO; }
 
-"{"         { printf("{ "); return LEFTBRACE; }
-"}"         { printf("} "); return RIGHTBRACE; }
-";"         { printf("; "); return SEMIC; }
-"<="        { printf("<= "); return LE; }
-">="        { printf(">= "); return GE; }
-"<"         { printf("< "); return LT; }
-">"         { printf("> "); return GT; }
-"=="        { printf("== "); return EQUALS; }
-"="         { printf("= "); return ASSIGN; }
-"+"         { printf("+ "); return PLUS; }
-"-"         { printf("- "); return MINUS; }
-"("         { printf("( "); return LEFTPARAN; }
-")"         { printf(") "); return RIGHTPARAN; }
-"["         { printf("[ "); return LEFTBRACK; }
-"]"         { printf("] "); return RIGHTBRACK; }
-"&&"        { printf("&& "); return AND; }
-"||"        { printf("|| "); return OR; }
-"!="         { printf("!= "); return NE; }
-"!"         { printf("! "); return NOT; }
-"*"         { printf("* "); return MULTIPLY; }
-"/"         { printf("/ "); return DIVIDE;}
+"{"         { return LEFTBRACE; }
+"}"         { return RIGHTBRACE; }
+";"         { return SEMIC; }
+"<="        { return LE; }
+">="        { return GE; }
+"<"         { return LT; }
+">"         { return GT; }
+"=="        { return EQUALS; }
+"="         { return ASSIGN; }
+"+"         { return PLUS; }
+"-"         { return MINUS; }
+"("         { return LEFTPARAN; }
+")"         { return RIGHTPARAN; }
+"["         { return LEFTBRACK; }
+"]"         { return RIGHTBRACK; }
+"&&"        { return AND; }
+"||"        { return OR; }
+"!="        { return NE; }
+"!"         { return NOT; }
+"*"         { return MULTIPLY; }
+"/"         { return DIVIDE; }
 
-{basic}     { yylval.strVal = strdup(yytext); printf("basic "); return BASIC; }
+{basic}     { yylval.str = strdup(yytext); return BASIC; }
 
-{real}      { yylval.dVal = atof(yytext); printf("real "); return REAL; }
-{num}       { yylval.intVal = atoi(yytext); printf("num "); return NUM; }
+{real}      { yylval.real = atof(yytext); return REAL; }
+{num}       { yylval.num = atoi(yytext); return NUM; }
 
-{id}        { insertSymbol(yytext); yylval.strVal = strdup(yytext); printf("id "); return ID; }
+{id}        { yylval.str = strdup(yytext); return ID; }
 %%
 
-int main(int argc, char **argv) {
+/*int main(int argc, char **argv) {
     if (argc > 1) {
         FILE *file = fopen(argv[1], "r");
         if (!file) {
@@ -120,4 +91,4 @@ int main(int argc, char **argv) {
     }
     printf("----\n");
     return 0;
-}
+}*/
