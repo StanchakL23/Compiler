@@ -58,6 +58,8 @@ block
 decls
     : decl decls
         { printf("decls -> decl decls\n"); }
+    | error decls
+        { printf("Recovered from a bad declaration.\n"); yyerrok; }
     | /* empty */
         { printf("decls -> e\n"); }
     ;
