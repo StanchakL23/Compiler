@@ -1,16 +1,15 @@
 %{
-/* ------------------- C Declarations ------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
-/* Temporary symbol table as a list */
+//Temporary symbol table, once again implemented as an array of strings.
 #define MAX_SYMBOLS 100
 char *symbol_table[MAX_SYMBOLS];
 int symbol_count = 0;
 
-/* Helper function to add identifiers to symbol table */
+//Adds symbols to the fake symbol table implementation
 void add_symbol(const char *sym) {
     if (symbol_count < MAX_SYMBOLS) {
         for ( int i = 0, found = 0; i < symbol_count; i++) {
@@ -20,7 +19,7 @@ void add_symbol(const char *sym) {
     }
 }
 
-/* Error handling function */
+//Declaration for error handling
 void yyerror(const char *s);
 int yylex(void);
 %}
