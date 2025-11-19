@@ -58,12 +58,12 @@ real        {digit}+"."{digit}*
 "*"         { return MULTIPLY; }
 "/"         { return DIVIDE; }
 
-{basic}     { yylval.str = strdup(yytext); return BASIC; }
+{basic}     { printf("LEX: BASIC(%s)\n", yytext); fflush(stdout); yylval.str = strdup(yytext); return BASIC; }
 
 {real}      { yylval.real = atof(yytext); return REAL; }
 {num}       { yylval.num = atoi(yytext); return NUM; }
 
-{id}        { yylval.str = strdup(yytext); return ID; }
+{id}        { printf("LEX: ID(%s)\n", yytext); fflush(stdout); yylval.str = strdup(yytext); return ID; }
 %%
 
 /*int main(int argc, char **argv) {

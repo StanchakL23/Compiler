@@ -75,19 +75,21 @@
 #include <stdbool.h>
 #include "symbtab.h"
 
-// Global current scope (like Java's 'this' reference)
+//current environment pointer (for scope)
 Env *current_env = NULL;
+IntermediateCode *global_code = NULL;
 
 // Temporary storage for building type records during parsing
 static BaseType current_base_type;
 static int dimension_stack[10];  // fixed size for simplicity
 static int dimension_count = 0;
 
+extern FILE *yyin;
 //Declaration for error handling
 void yyerror(const char *s);
 int yylex(void);
 
-#line 91 "parser.tab.c"
+#line 93 "/home/lstanchak/Assignment2/build/parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -110,87 +112,7 @@ int yylex(void);
 #  endif
 # endif
 
-
-/* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int yydebug;
-#endif
-
-/* Token kinds.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
-  {
-    YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    WHILE_ = 258,                  /* WHILE_  */
-    IF_ = 259,                     /* IF_  */
-    ELSE_ = 260,                   /* ELSE_  */
-    RETURN_ = 261,                 /* RETURN_  */
-    BREAK_ = 262,                  /* BREAK_  */
-    DO = 263,                      /* DO  */
-    LEFTBRACE = 264,               /* LEFTBRACE  */
-    RIGHTBRACE = 265,              /* RIGHTBRACE  */
-    SEMIC = 266,                   /* SEMIC  */
-    EQUALS = 267,                  /* EQUALS  */
-    PLUS = 268,                    /* PLUS  */
-    MINUS = 269,                   /* MINUS  */
-    LEFTPARAN = 270,               /* LEFTPARAN  */
-    RIGHTPARAN = 271,              /* RIGHTPARAN  */
-    LT = 272,                      /* LT  */
-    GT = 273,                      /* GT  */
-    LE = 274,                      /* LE  */
-    GE = 275,                      /* GE  */
-    LEFTBRACK = 276,               /* LEFTBRACK  */
-    RIGHTBRACK = 277,              /* RIGHTBRACK  */
-    AND = 278,                     /* AND  */
-    OR = 279,                      /* OR  */
-    NE = 280,                      /* NE  */
-    ASSIGN = 281,                  /* ASSIGN  */
-    NOT = 282,                     /* NOT  */
-    MULTIPLY = 283,                /* MULTIPLY  */
-    DIVIDE = 284,                  /* DIVIDE  */
-    ID = 285,                      /* ID  */
-    BASIC = 286,                   /* BASIC  */
-    NUM = 287,                     /* NUM  */
-    REAL = 288,                    /* REAL  */
-    BOOLCONST = 289                /* BOOLCONST  */
-  };
-  typedef enum yytokentype yytoken_kind_t;
-#endif
-
-/* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-union YYSTYPE
-{
-#line 21 "parser.y"
-
-    char *str;
-    int num;
-    float real;
-    bool bVal;
-
-#line 179 "parser.tab.c"
-
-};
-typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
-#endif
-
-
-extern YYSTYPE yylval;
-
-
-int yyparse (void);
-
-
-
+#include "parser.tab.h"
 /* Symbol kind.  */
 enum yysymbol_kind_t
 {
@@ -236,8 +158,8 @@ enum yysymbol_kind_t
   YYSYMBOL_38_1 = 38,                      /* $@1  */
   YYSYMBOL_decls = 39,                     /* decls  */
   YYSYMBOL_decl = 40,                      /* decl  */
-  YYSYMBOL_41_2 = 41,                      /* $@2  */
-  YYSYMBOL_type1 = 42,                     /* type1  */
+  YYSYMBOL_base_type_spec = 41,            /* base_type_spec  */
+  YYSYMBOL_dims = 42,                      /* dims  */
   YYSYMBOL_stmts = 43,                     /* stmts  */
   YYSYMBOL_stmt = 44,                      /* stmt  */
   YYSYMBOL_loc = 45,                       /* loc  */
@@ -574,16 +496,16 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  5
+#define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   115
+#define YYLAST   118
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  35
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  19
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  51
+#define YYNRULES  50
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  101
 
@@ -635,14 +557,14 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    42,    42,    47,    47,    56,    58,    61,    65,    65,
-     100,   106,   110,   113,   117,   119,   121,   123,   125,   127,
-     129,   131,   133,   135,   140,   142,   154,   156,   161,   163,
-     168,   170,   172,   177,   179,   181,   183,   185,   190,   192,
-     194,   199,   201,   203,   208,   210,   212,   217,   219,   221,
-     223,   225
+       0,    50,    50,    57,    57,    67,    68,    73,    84,    94,
+     100,   104,   107,   111,   131,   133,   135,   137,   139,   141,
+     143,   145,   147,   152,   190,   205,   207,   212,   214,   219,
+     221,   223,   228,   230,   232,   234,   236,   241,   260,   279,
+     287,   306,   325,   333,   335,   337,   342,   347,   368,   373,
+     378
 };
 #endif
 
@@ -663,9 +585,9 @@ static const char *const yytname[] =
   "EQUALS", "PLUS", "MINUS", "LEFTPARAN", "RIGHTPARAN", "LT", "GT", "LE",
   "GE", "LEFTBRACK", "RIGHTBRACK", "AND", "OR", "NE", "ASSIGN", "NOT",
   "MULTIPLY", "DIVIDE", "ID", "BASIC", "NUM", "REAL", "BOOLCONST",
-  "$accept", "program", "block", "$@1", "decls", "decl", "$@2", "type1",
-  "stmts", "stmt", "loc", "bool", "join", "equality", "rel", "expr",
-  "term", "unary", "factor", YY_NULLPTR
+  "$accept", "program", "block", "$@1", "decls", "decl", "base_type_spec",
+  "dims", "stmts", "stmt", "loc", "bool", "join", "equality", "rel",
+  "expr", "term", "unary", "factor", YY_NULLPTR
 };
 
 static const char *
@@ -675,12 +597,12 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-26)
+#define YYPACT_NINF (-23)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-14)
+#define YYTABLE_NINF (-13)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -689,17 +611,17 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      28,   -26,    40,   -26,    11,   -26,    11,   -26,    24,    11,
-     -26,   -26,     0,    48,    62,    58,    67,    49,   -26,   -26,
-      70,    24,    50,   -26,    17,   -26,   -26,    58,    58,    58,
-      58,    58,   -26,   -26,   -26,    63,     5,    64,    10,   -26,
-      80,    54,   -26,   -26,   -26,    83,   -26,   -26,    58,    58,
-      73,    95,    20,    27,   -26,    45,   -26,   -26,    58,    58,
-      58,    58,    58,    58,    58,    58,    58,    58,    58,    58,
-      92,    42,    15,    86,   -26,    49,    49,   -26,    64,    10,
-     -26,   -26,    54,    54,    35,    35,    35,    35,   -26,   -26,
-      58,   -26,   -26,   -26,   -26,   104,    46,    49,    99,   -26,
-     -26
+       1,   -23,     6,    13,   -23,    45,    25,    52,    71,    35,
+      72,   -23,   -23,   -23,   -23,   -23,   -23,    47,    44,     8,
+     -23,   -23,    71,    71,    71,    71,    71,   -23,   -23,   -23,
+      49,    -6,    54,     0,   -23,    93,    31,   -23,   -23,   -23,
+      68,   -23,     3,   -23,   -23,    71,    71,    11,    12,   -23,
+      14,   -23,   -23,    71,    71,    71,    71,    71,    71,    71,
+      71,    71,    71,    71,    71,    69,    13,    57,    80,    15,
+       2,    72,    72,   -23,    54,     0,   -23,   -23,    31,    31,
+      48,    48,    48,    48,   -23,   -23,    71,    82,    73,   -23,
+     -23,   -23,   -23,    88,    42,   -23,   -23,    72,    85,   -23,
+     -23
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -707,31 +629,31 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     3,     0,     2,     0,     1,     0,     8,     0,     0,
-       6,    11,     0,     0,     0,     0,     0,     0,    25,    21,
-       0,     0,     0,     5,     0,    23,    22,     0,     0,     0,
-       0,     0,    49,    50,    51,    48,     0,    27,    29,    32,
-      37,    40,    43,    46,    19,     0,     4,    12,     0,     0,
-       0,     0,     0,     0,    45,     0,    44,    20,     0,     0,
+       0,     5,     0,     0,     1,     0,     0,     0,     0,     0,
+       0,     3,    24,     8,    20,     6,    10,     0,     0,     0,
+      22,    21,     0,     0,     0,     0,     0,    48,    49,    50,
+      47,     0,    26,    28,    31,    36,    39,    42,    45,    18,
+       0,     5,     0,     2,    11,     0,     0,     0,     0,    44,
+       0,    43,    19,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     9,     0,     0,    47,    26,    28,
-      30,    31,    38,    39,    33,    35,    34,    36,    41,    42,
-       0,    24,    14,    10,    17,    15,     0,     0,     0,    16,
-      18
+       0,     0,     0,    46,    25,    27,    29,    30,    37,    38,
+      32,    34,    33,    35,    40,    41,     0,     0,     0,     7,
+      23,    13,    16,    14,     0,     4,     9,     0,     0,    15,
+      17
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -26,   -26,   111,   -26,    -2,   -26,   -26,   -26,    91,   -16,
-      -8,   -25,    55,    56,    14,    37,    33,   -23,   -26
+     -23,   -23,   -23,   -23,    56,   -23,   -23,   -23,   -17,    -7,
+      -3,   -14,    46,    64,    27,    55,    30,   -22,   -23
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,    19,     4,     8,     9,    11,    24,    20,    21,
-      35,    36,    37,    38,    39,    40,    41,    42,    43
+       0,     2,    14,    41,     3,    15,    16,    42,    17,    18,
+      30,    31,    32,    33,    34,    35,    36,    37,    38
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -739,73 +661,73 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      22,    45,    52,    53,    10,    55,    54,    23,    56,    22,
-      25,    26,     6,    22,    -7,    -7,    57,    -7,    -7,    -7,
-      -7,    -7,    60,    71,    72,    12,    92,    13,    14,    58,
-      15,    16,    17,     1,   -13,    61,    75,     1,    50,    58,
-       5,    -7,     7,    76,    58,    88,    89,    51,    62,    63,
-      12,    58,    13,    14,    18,    15,    16,    17,     1,    94,
-      95,    77,    98,    27,    91,    96,    58,    22,    22,    58,
-      58,    48,    29,    30,    80,    81,    49,    28,    44,    18,
-      46,    99,    68,    69,    48,    31,    70,    59,    18,    22,
-      32,    33,    34,    62,    63,    82,    83,    64,    65,    66,
-      67,    84,    85,    86,    87,    73,    74,    90,    93,    97,
-     100,     3,    47,    78,     0,    79
+      19,    44,    49,    40,    51,    52,     4,    19,    47,    48,
+       1,    50,    55,    91,     5,    19,     6,     7,    53,     8,
+       9,    10,    11,   -12,    67,    56,    53,    71,    72,    45,
+      73,    69,    70,    68,    46,    53,    53,    90,    53,    53,
+      22,    84,    85,    12,    13,     5,    39,     6,     7,    87,
+       8,     9,    10,    11,   -12,    20,    21,    43,    98,    63,
+      64,    57,    58,    19,    92,    93,    53,    23,    19,    19,
+      45,    65,    94,     5,    12,     6,     7,    54,     8,     9,
+      10,    11,    76,    77,    86,    24,    25,    78,    79,    88,
+      99,    89,    95,    97,    19,    96,   100,    66,    26,    74,
+       0,    12,    12,    27,    28,    29,    57,    58,     0,     0,
+      59,    60,    61,    62,    80,    81,    82,    83,    75
 };
 
 static const yytype_int8 yycheck[] =
 {
-       8,    17,    27,    28,     6,    30,    29,     9,    31,    17,
-      10,    11,     1,    21,     3,     4,    11,     6,     7,     8,
-       9,    10,    12,    48,    49,     1,    11,     3,     4,    24,
-       6,     7,     8,     9,    10,    25,    16,     9,    21,    24,
-       0,    30,    31,    16,    24,    68,    69,    30,    13,    14,
-       1,    24,     3,     4,    30,     6,     7,     8,     9,    75,
-      76,    16,    16,    15,    22,    90,    24,    75,    76,    24,
-      24,    21,    14,    15,    60,    61,    26,    15,    11,    30,
-      10,    97,    28,    29,    21,    27,     3,    23,    30,    97,
-      32,    33,    34,    13,    14,    62,    63,    17,    18,    19,
-      20,    64,    65,    66,    67,    32,    11,    15,    22,     5,
-      11,     0,    21,    58,    -1,    59
+       3,    18,    24,    10,    26,    11,     0,    10,    22,    23,
+       9,    25,    12,    11,     1,    18,     3,     4,    24,     6,
+       7,     8,     9,    10,    21,    25,    24,    16,    16,    21,
+      16,    45,    46,    30,    26,    24,    24,    22,    24,    24,
+      15,    63,    64,    30,    31,     1,    11,     3,     4,    66,
+       6,     7,     8,     9,    10,    10,    11,    10,    16,    28,
+      29,    13,    14,    66,    71,    72,    24,    15,    71,    72,
+      21,     3,    86,     1,    30,     3,     4,    23,     6,     7,
+       8,     9,    55,    56,    15,    14,    15,    57,    58,    32,
+      97,    11,    10,     5,    97,    22,    11,    41,    27,    53,
+      -1,    30,    30,    32,    33,    34,    13,    14,    -1,    -1,
+      17,    18,    19,    20,    59,    60,    61,    62,    54
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     9,    36,    37,    38,     0,     1,    31,    39,    40,
-      39,    41,     1,     3,     4,     6,     7,     8,    30,    37,
-      43,    44,    45,    39,    42,    10,    11,    15,    15,    14,
-      15,    27,    32,    33,    34,    45,    46,    47,    48,    49,
-      50,    51,    52,    53,    11,    44,    10,    43,    21,    26,
-      21,    30,    46,    46,    52,    46,    52,    11,    24,    23,
-      12,    25,    13,    14,    17,    18,    19,    20,    28,    29,
-       3,    46,    46,    32,    11,    16,    16,    16,    47,    48,
-      49,    49,    51,    51,    50,    50,    50,    50,    52,    52,
-      15,    22,    11,    22,    44,    44,    46,     5,    16,    44,
+       0,     9,    36,    39,     0,     1,     3,     4,     6,     7,
+       8,     9,    30,    31,    37,    40,    41,    43,    44,    45,
+      10,    11,    15,    15,    14,    15,    27,    32,    33,    34,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    11,
+      44,    38,    42,    10,    43,    21,    26,    46,    46,    52,
+      46,    52,    11,    24,    23,    12,    25,    13,    14,    17,
+      18,    19,    20,    28,    29,     3,    39,    21,    30,    46,
+      46,    16,    16,    16,    47,    48,    49,    49,    51,    51,
+      50,    50,    50,    50,    52,    52,    15,    43,    32,    11,
+      22,    11,    44,    44,    46,    10,    22,     5,    16,    44,
       11
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    35,    36,    38,    37,    39,    39,    39,    41,    40,
-      42,    42,    43,    43,    44,    44,    44,    44,    44,    44,
-      44,    44,    44,    44,    45,    45,    46,    46,    47,    47,
-      48,    48,    48,    49,    49,    49,    49,    49,    50,    50,
-      50,    51,    51,    51,    52,    52,    52,    53,    53,    53,
-      53,    53
+       0,    35,    36,    38,    37,    39,    39,    40,    41,    42,
+      42,    43,    43,    44,    44,    44,    44,    44,    44,    44,
+      44,    44,    44,    45,    45,    46,    46,    47,    47,    48,
+      48,    48,    49,    49,    49,    49,    49,    50,    50,    50,
+      51,    51,    51,    52,    52,    52,    53,    53,    53,    53,
+      53
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     0,     5,     2,     2,     0,     0,     5,
-       4,     0,     2,     0,     4,     5,     7,     5,     7,     2,
-       3,     1,     2,     2,     4,     1,     3,     1,     3,     1,
-       3,     3,     1,     3,     3,     3,     3,     1,     3,     3,
-       1,     3,     3,     1,     2,     2,     1,     3,     1,     1,
-       1,     1
+       0,     2,     4,     0,     5,     0,     2,     4,     1,     4,
+       0,     2,     0,     4,     5,     7,     5,     7,     2,     3,
+       1,     2,     2,     4,     1,     3,     1,     3,     1,     3,
+       3,     1,     3,     3,     3,     3,     1,     3,     3,     1,
+       3,     3,     1,     2,     2,     1,     3,     1,     1,     1,
+       1
 };
 
 
@@ -1268,333 +1190,489 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2: /* program: block  */
-#line 43 "parser.y"
-        { printf("program -> block\n"); }
-#line 1275 "parser.tab.c"
+  case 2: /* program: LEFTBRACE decls stmts RIGHTBRACE  */
+#line 51 "parser.y"
+        { 
+            printf("program -> { decls stmts }\n"); 
+        }
+#line 1199 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
   case 3: /* $@1: %empty  */
-#line 47 "parser.y"
+#line 57 "parser.y"
                 { current_env = env_create(current_env); }
-#line 1281 "parser.tab.c"
+#line 1205 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
   case 4: /* block: LEFTBRACE $@1 decls stmts RIGHTBRACE  */
-#line 48 "parser.y"
+#line 58 "parser.y"
         { 
-            printf("block -> decls stmts\n"); 
+            printf("block -> decls stmts\n");
             env_print_trail(current_env);
             current_env = current_env->prev; 
         }
-#line 1291 "parser.tab.c"
+#line 1215 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 5: /* decls: decl decls  */
-#line 57 "parser.y"
-        { printf("decls -> decl decls\n"); }
-#line 1297 "parser.tab.c"
-    break;
-
-  case 6: /* decls: error decls  */
-#line 59 "parser.y"
-        { printf("Recovered from a bad declaration.\n"); yyerrok; }
-#line 1303 "parser.tab.c"
-    break;
-
-  case 7: /* decls: %empty  */
-#line 61 "parser.y"
+  case 5: /* decls: %empty  */
+#line 67 "parser.y"
         { printf("decls -> e\n"); }
-#line 1309 "parser.tab.c"
+#line 1221 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 8: /* $@2: %empty  */
-#line 65 "parser.y"
-            { 
-        if (strcmp((yyvsp[0].str), "int") == 0) current_base_type = INT;
-        else if (strcmp((yyvsp[0].str), "float") == 0) current_base_type = FLOAT;
-        else if (strcmp((yyvsp[0].str), "bool") == 0) current_base_type = BOOL;
-        free((yyvsp[0].str));
-        dimension_count = 0;
-    }
-#line 1321 "parser.tab.c"
+  case 6: /* decls: decls decl  */
+#line 69 "parser.y"
+        { printf("decls -> decl decls\n"); }
+#line 1227 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 9: /* decl: BASIC $@2 type1 ID SEMIC  */
-#line 72 "parser.y"
-        { 
-            printf("decl -> BASIC type1 ID SEMIC\n");
+  case 7: /* decl: base_type_spec dims ID SEMIC  */
+#line 74 "parser.y"
+        {
+            printf("decl -> base_type_spec dims ID SEMIC\n");  
             TypeRecord *type = type_record_create(current_base_type, dimension_stack, dimension_count);
-            env_put(current_env, (yyvsp[-1].str), type);
+            env_put(current_env, (yyvsp[-1].str), type, false);
+            dimension_count = 0;
             free((yyvsp[-1].str));
         }
-#line 1332 "parser.tab.c"
+#line 1239 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 10: /* type1: type1 LEFTBRACK NUM RIGHTBRACK  */
-#line 101 "parser.y"
-        { 
-            printf("type1 -> type1 [ NUM ]\n"); 
-            dimension_stack[dimension_count++] = (yyvsp[-1].num);
-        }
-#line 1341 "parser.tab.c"
-    break;
-
-  case 11: /* type1: %empty  */
-#line 106 "parser.y"
-        { printf("type1 -> e\n"); }
-#line 1347 "parser.tab.c"
-    break;
-
-  case 12: /* stmts: stmt stmts  */
-#line 111 "parser.y"
-        { printf("stmts -> stmt stmts\n"); }
-#line 1353 "parser.tab.c"
-    break;
-
-  case 13: /* stmts: %empty  */
-#line 113 "parser.y"
-        { printf("stmts -> e\n"); }
-#line 1359 "parser.tab.c"
-    break;
-
-  case 14: /* stmt: loc ASSIGN bool SEMIC  */
-#line 118 "parser.y"
-        { printf("stmt -> loc = bool ;\n"); }
-#line 1365 "parser.tab.c"
-    break;
-
-  case 15: /* stmt: IF_ LEFTPARAN bool RIGHTPARAN stmt  */
-#line 120 "parser.y"
-        { printf("stmt -> if ( bool ) stmt\n"); }
-#line 1371 "parser.tab.c"
-    break;
-
-  case 16: /* stmt: IF_ LEFTPARAN bool RIGHTPARAN stmt ELSE_ stmt  */
-#line 122 "parser.y"
-        { printf("stmt -> if ( bool ) stmt else stmt\n"); }
-#line 1377 "parser.tab.c"
-    break;
-
-  case 17: /* stmt: WHILE_ LEFTPARAN bool RIGHTPARAN stmt  */
-#line 124 "parser.y"
-        { printf("stmt -> while ( bool ) stmt\n"); }
-#line 1383 "parser.tab.c"
-    break;
-
-  case 18: /* stmt: DO stmt WHILE_ LEFTPARAN bool RIGHTPARAN SEMIC  */
-#line 126 "parser.y"
-        { printf("stmt -> do stmt while ( bool ) ;\n"); }
-#line 1389 "parser.tab.c"
-    break;
-
-  case 19: /* stmt: BREAK_ SEMIC  */
-#line 128 "parser.y"
-        { printf("stmt -> break ;\n"); }
-#line 1395 "parser.tab.c"
-    break;
-
-  case 20: /* stmt: RETURN_ bool SEMIC  */
-#line 130 "parser.y"
-        { printf("stmt -> return bool ;\n"); }
-#line 1401 "parser.tab.c"
-    break;
-
-  case 21: /* stmt: block  */
-#line 132 "parser.y"
-        { printf("stmt -> block\n"); }
-#line 1407 "parser.tab.c"
-    break;
-
-  case 22: /* stmt: error SEMIC  */
-#line 134 "parser.y"
-        { printf("Recovered from a bad statement (missing ';').\n"); yyerrok; }
-#line 1413 "parser.tab.c"
-    break;
-
-  case 23: /* stmt: error RIGHTBRACE  */
-#line 136 "parser.y"
-        { printf("Recovered from a bad block (found the closing '}' for this block).\n"); yyerrok; }
-#line 1419 "parser.tab.c"
-    break;
-
-  case 24: /* loc: loc LEFTBRACK bool RIGHTBRACK  */
-#line 141 "parser.y"
-        { printf("loc -> loc [ bool ]\n"); }
-#line 1425 "parser.tab.c"
-    break;
-
-  case 25: /* loc: ID  */
-#line 143 "parser.y"
-        { 
-            printf("loc -> ID\n");
-            TypeRecord *type = env_get(current_env, (yyvsp[0].str));
-            if (!type) {
-                fprintf(stderr, "Error: Undeclared identifier '%s'\n", (yyvsp[0].str));
-            }
+  case 8: /* base_type_spec: BASIC  */
+#line 85 "parser.y"
+        {
+            dimension_count = 0;  // reset dimensions
+            if (strcmp((yyvsp[0].str), "int") == 0) current_base_type = INT;
+            else if (strcmp((yyvsp[0].str), "float") == 0) current_base_type = FLOAT;
+            else if (strcmp((yyvsp[0].str), "bool") == 0) current_base_type = BOOL;
             free((yyvsp[0].str));
         }
-#line 1438 "parser.tab.c"
+#line 1251 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 26: /* bool: bool OR join  */
-#line 155 "parser.y"
-        { printf("bool -> bool || join\n"); }
-#line 1444 "parser.tab.c"
+  case 9: /* dims: dims LEFTBRACK NUM RIGHTBRACK  */
+#line 95 "parser.y"
+        {
+            printf("dims -> dims [ NUM ]\n");
+            dimension_stack[dimension_count++] = (yyvsp[-1].num);
+        }
+#line 1260 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 27: /* bool: join  */
-#line 157 "parser.y"
-        { printf("bool -> join\n"); }
-#line 1450 "parser.tab.c"
+  case 10: /* dims: %empty  */
+#line 100 "parser.y"
+        { printf("dims -> e\n"); }
+#line 1266 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 28: /* join: join AND equality  */
-#line 162 "parser.y"
-        { printf("join -> join && equality\n"); }
-#line 1456 "parser.tab.c"
+  case 11: /* stmts: stmt stmts  */
+#line 105 "parser.y"
+        { printf("stmts -> stmt stmts\n"); }
+#line 1272 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 29: /* join: equality  */
-#line 164 "parser.y"
-        { printf("join -> equality\n"); }
-#line 1462 "parser.tab.c"
+  case 12: /* stmts: %empty  */
+#line 107 "parser.y"
+        { printf("stmts -> e\n"); }
+#line 1278 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 30: /* equality: equality EQUALS rel  */
-#line 169 "parser.y"
-        { printf("equality -> equality == rel\n"); }
-#line 1468 "parser.tab.c"
+  case 13: /* stmt: loc ASSIGN bool SEMIC  */
+#line 112 "parser.y"
+        { 
+            printf("stmt -> loc = bool ;\n"); 
+            
+            Address *destination_addr = (yyvsp[-3].addr); 
+            Address *source_addr = (yyvsp[-1].addr);      
+            OpCode op;
+            
+            // Check if destination is a temporary variable (like t12)
+            // If it's a temporary, it means it holds the calculated address of an array element.
+            if (destination_addr && destination_addr->type == ADDR_VARIABLE && destination_addr->data.variable.name[0] == 't') {
+                op = OP_STORE; // Use STORE for array element assignment: STORE $3 into address $1
+            } else {
+                op = OP_ASSIGN; // Use ASSIGN for simple variable assignment: $1 = $3
+            }
+            
+            // Note: src2 is NULL for both
+            Instruction *instr = instruction_create(op, source_addr, NULL, destination_addr);
+            intermediate_code_append(global_code, instr);
+        }
+#line 1302 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 31: /* equality: equality NE rel  */
-#line 171 "parser.y"
-        { printf("equality -> equality != rel\n"); }
-#line 1474 "parser.tab.c"
+  case 14: /* stmt: IF_ LEFTPARAN bool RIGHTPARAN stmt  */
+#line 132 "parser.y"
+        { printf("stmt -> if ( bool ) stmt\n"); }
+#line 1308 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 32: /* equality: rel  */
-#line 173 "parser.y"
-        { printf("equality -> rel\n"); }
-#line 1480 "parser.tab.c"
+  case 15: /* stmt: IF_ LEFTPARAN bool RIGHTPARAN stmt ELSE_ stmt  */
+#line 134 "parser.y"
+        { printf("stmt -> if ( bool ) stmt else stmt\n"); }
+#line 1314 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 33: /* rel: expr LT expr  */
-#line 178 "parser.y"
-        { printf("rel -> expr < expr\n"); }
-#line 1486 "parser.tab.c"
+  case 16: /* stmt: WHILE_ LEFTPARAN bool RIGHTPARAN stmt  */
+#line 136 "parser.y"
+        { printf("stmt -> while ( bool ) stmt\n"); }
+#line 1320 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 34: /* rel: expr LE expr  */
-#line 180 "parser.y"
-        { printf("rel -> expr <= expr\n"); }
-#line 1492 "parser.tab.c"
+  case 17: /* stmt: DO stmt WHILE_ LEFTPARAN bool RIGHTPARAN SEMIC  */
+#line 138 "parser.y"
+        { printf("stmt -> do stmt while ( bool ) ;\n"); }
+#line 1326 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 35: /* rel: expr GT expr  */
-#line 182 "parser.y"
-        { printf("rel -> expr > expr\n"); }
-#line 1498 "parser.tab.c"
+  case 18: /* stmt: BREAK_ SEMIC  */
+#line 140 "parser.y"
+        { printf("stmt -> break ;\n"); }
+#line 1332 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 36: /* rel: expr GE expr  */
-#line 184 "parser.y"
-        { printf("rel -> expr >= expr\n"); }
-#line 1504 "parser.tab.c"
+  case 19: /* stmt: RETURN_ bool SEMIC  */
+#line 142 "parser.y"
+        { printf("stmt -> return bool ;\n"); }
+#line 1338 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 37: /* rel: expr  */
-#line 186 "parser.y"
-        { printf("rel -> expr\n"); }
-#line 1510 "parser.tab.c"
+  case 20: /* stmt: block  */
+#line 144 "parser.y"
+        { printf("stmt -> block\n"); }
+#line 1344 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 38: /* expr: expr PLUS term  */
+  case 21: /* stmt: error SEMIC  */
+#line 146 "parser.y"
+        { printf("Recovered from a bad statement (missing ';').\n"); yyerrok; }
+#line 1350 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 22: /* stmt: error RIGHTBRACE  */
+#line 148 "parser.y"
+        { printf("Recovered from a bad block (found the closing '}' for this block).\n"); yyerrok; }
+#line 1356 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 23: /* loc: loc LEFTBRACK bool RIGHTBRACK  */
+#line 153 "parser.y"
+        {
+            printf("loc -> loc [ bool ]\n");
+
+            Address *base_addr = (yyvsp[-3].addr);
+            Address *index_addr = (yyvsp[-1].addr);
+            
+            // --- ERROR CHECKING ---
+            if (!base_addr || base_addr->type != ADDR_VARIABLE || !base_addr->data.variable.type_record) {
+                 fprintf(stderr, "Error: Cannot index non-variable or undeclared array.\n");
+                 (yyval.addr) = NULL;
+            } else {
+                // Address is valid, proceed with array access calculation
+                TypeRecord *array_type = base_addr->data.variable.type_record;
+                
+                size_t element_width = get_element_width(array_type); 
+                
+                char *temp_offset_name = create_temp(current_env, INT, NULL, 0); 
+                TypeRecord *temp_offset_type = env_get(current_env, temp_offset_name);
+                Address *temp_offset_addr = createVarAddr(temp_offset_name, temp_offset_type);
+
+                Address *width_addr = createIntAddr(element_width); 
+
+                Instruction *mul_instr = instruction_create(OP_MUL, index_addr, width_addr, temp_offset_addr);
+                intermediate_code_append(global_code, mul_instr);
+                
+                BaseType result_basetype = array_type->base_type;
+                
+                char *temp_final_name = create_temp(current_env, result_basetype, NULL, 0);
+                TypeRecord *temp_final_type = env_get(current_env, temp_final_name);
+                Address *temp_final_addr = createVarAddr(temp_final_name, temp_final_type);
+
+                Instruction *add_instr = instruction_create(OP_ADD, base_addr, temp_offset_addr, temp_final_addr);
+                intermediate_code_append(global_code, add_instr);
+                
+                (yyval.addr) = temp_final_addr;
+            }
+        }
+#line 1398 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 24: /* loc: ID  */
 #line 191 "parser.y"
-        { printf("expr -> expr + term\n"); }
-#line 1516 "parser.tab.c"
+    { 
+        printf("loc -> ID\n");
+        TypeRecord *type = env_get(current_env, (yyvsp[0].str));
+        if (!type) {
+            fprintf(stderr, "Error: Undeclared identifier '%s'\n", (yyvsp[0].str));
+            (yyval.addr) = NULL; 
+        } else {
+            (yyval.addr) = createVarAddr((yyvsp[0].str), type);
+        }
+        free((yyvsp[0].str)); 
+    }
+#line 1414 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 39: /* expr: expr MINUS term  */
-#line 193 "parser.y"
-        { printf("expr -> expr - term\n"); }
-#line 1522 "parser.tab.c"
+  case 25: /* bool: bool OR join  */
+#line 206 "parser.y"
+        { printf("bool -> bool || join\n"); }
+#line 1420 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 40: /* expr: term  */
-#line 195 "parser.y"
-        { printf("expr -> term\n"); }
-#line 1528 "parser.tab.c"
+  case 26: /* bool: join  */
+#line 208 "parser.y"
+        { printf("bool -> join\n"); }
+#line 1426 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 41: /* term: term MULTIPLY unary  */
-#line 200 "parser.y"
-        { printf("term -> term * unary\n"); }
-#line 1534 "parser.tab.c"
-    break;
-
-  case 42: /* term: term DIVIDE unary  */
-#line 202 "parser.y"
-        { printf("term -> term / unary\n"); }
-#line 1540 "parser.tab.c"
-    break;
-
-  case 43: /* term: unary  */
-#line 204 "parser.y"
-        { printf("term -> unary\n"); }
-#line 1546 "parser.tab.c"
-    break;
-
-  case 44: /* unary: NOT unary  */
-#line 209 "parser.y"
-        { printf("unary -> ! unary\n"); }
-#line 1552 "parser.tab.c"
-    break;
-
-  case 45: /* unary: MINUS unary  */
-#line 211 "parser.y"
-        { printf("unary -> - unary\n"); }
-#line 1558 "parser.tab.c"
-    break;
-
-  case 46: /* unary: factor  */
+  case 27: /* join: join AND equality  */
 #line 213 "parser.y"
-        { printf("unary -> factor\n"); }
-#line 1564 "parser.tab.c"
+        { printf("join -> join && equality\n"); }
+#line 1432 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 47: /* factor: LEFTPARAN bool RIGHTPARAN  */
-#line 218 "parser.y"
-        { printf("factor -> ( bool )\n"); }
-#line 1570 "parser.tab.c"
+  case 28: /* join: equality  */
+#line 215 "parser.y"
+        { printf("join -> equality\n"); }
+#line 1438 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 48: /* factor: loc  */
+  case 29: /* equality: equality EQUALS rel  */
 #line 220 "parser.y"
-        { printf("factor -> loc\n"); }
-#line 1576 "parser.tab.c"
+        { printf("equality -> equality == rel\n"); }
+#line 1444 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 49: /* factor: NUM  */
+  case 30: /* equality: equality NE rel  */
 #line 222 "parser.y"
-        { printf("factor -> NUM\n"); }
-#line 1582 "parser.tab.c"
+        { printf("equality -> equality != rel\n"); }
+#line 1450 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 50: /* factor: REAL  */
+  case 31: /* equality: rel  */
 #line 224 "parser.y"
-        { printf("factor -> REAL\n"); }
-#line 1588 "parser.tab.c"
+        { printf("equality -> rel\n"); }
+#line 1456 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
-  case 51: /* factor: BOOLCONST  */
-#line 226 "parser.y"
+  case 32: /* rel: expr LT expr  */
+#line 229 "parser.y"
+        { printf("rel -> expr < expr\n"); }
+#line 1462 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 33: /* rel: expr LE expr  */
+#line 231 "parser.y"
+        { printf("rel -> expr <= expr\n"); }
+#line 1468 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 34: /* rel: expr GT expr  */
+#line 233 "parser.y"
+        { printf("rel -> expr > expr\n"); }
+#line 1474 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 35: /* rel: expr GE expr  */
+#line 235 "parser.y"
+        { printf("rel -> expr >= expr\n"); }
+#line 1480 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 36: /* rel: expr  */
+#line 237 "parser.y"
+        { printf("rel -> expr\n"); }
+#line 1486 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 37: /* expr: expr PLUS term  */
+#line 242 "parser.y"
+        { 
+            printf("expr -> expr + term\n"); 
+            BaseType t1 = get_address_type((yyvsp[-2].addr));
+            BaseType t2 = get_address_type((yyvsp[0].addr));
+
+            BaseType max_t = max_type(t1, t2);
+            Address *src1 = widen(current_env, (yyvsp[-2].addr), t1, max_t, global_code);
+            Address *src2 = widen(current_env, (yyvsp[0].addr), t2, max_t, global_code);
+
+            char *temp_name = create_temp(current_env, max_t, NULL, 0);
+            TypeRecord *temp_type = env_get(current_env, temp_name);
+            Address *result = createVarAddr(temp_name, temp_type);
+
+            Instruction *instr = instruction_create(OP_ADD, src1, src2, result);
+            intermediate_code_append(global_code, instr);
+
+            (yyval.addr) = result;
+        }
+#line 1509 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 38: /* expr: expr MINUS term  */
+#line 261 "parser.y"
+        { 
+            printf("expr -> expr - term\n"); 
+            BaseType t1 = get_address_type((yyvsp[-2].addr));
+            BaseType t2 = get_address_type((yyvsp[0].addr));
+
+            BaseType max_t = max_type(t1, t2);
+            Address *src1 = widen(current_env, (yyvsp[-2].addr), t1, max_t, global_code);
+            Address *src2 = widen(current_env, (yyvsp[0].addr), t2, max_t, global_code);
+
+            char *temp_name = create_temp(current_env, max_t, NULL, 0);
+            TypeRecord *temp_type = env_get(current_env, temp_name);
+            Address *result = createVarAddr(temp_name, temp_type);
+
+            Instruction *instr = instruction_create(OP_SUB, src1, src2, result);
+            intermediate_code_append(global_code, instr);
+
+            (yyval.addr) = result;
+        }
+#line 1532 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 39: /* expr: term  */
+#line 280 "parser.y"
+        { 
+            printf("expr -> term\n"); 
+            (yyval.addr) = (yyvsp[0].addr);
+        }
+#line 1541 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 40: /* term: term MULTIPLY unary  */
+#line 288 "parser.y"
+        { 
+            printf("term -> term * unary\n"); 
+            BaseType t1 = get_address_type((yyvsp[-2].addr));
+            BaseType t2 = get_address_type((yyvsp[0].addr));
+
+            BaseType max_t = max_type(t1, t2);
+            Address *src1 = widen(current_env, (yyvsp[-2].addr), t1, max_t, global_code);
+            Address *src2 = widen(current_env, (yyvsp[0].addr), t2, max_t, global_code);
+
+            char *temp_name = create_temp(current_env, max_t, NULL, 0);
+            TypeRecord *temp_type = env_get(current_env, temp_name);
+            Address *result = createVarAddr(temp_name, temp_type);
+
+            Instruction *instr = instruction_create(OP_MUL, src1, src2, result);
+            intermediate_code_append(global_code, instr);
+
+            (yyval.addr) = result;
+        }
+#line 1564 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 41: /* term: term DIVIDE unary  */
+#line 307 "parser.y"
+        { 
+            printf("term -> term / unary\n"); 
+            BaseType t1 = get_address_type((yyvsp[-2].addr));
+            BaseType t2 = get_address_type((yyvsp[0].addr));
+
+            BaseType max_t = max_type(t1, t2);
+            Address *src1 = widen(current_env, (yyvsp[-2].addr), t1, max_t, global_code);
+            Address *src2 = widen(current_env, (yyvsp[0].addr), t2, max_t, global_code);
+
+            char *temp_name = create_temp(current_env, max_t, NULL, 0);
+            TypeRecord *temp_type = env_get(current_env, temp_name);
+            Address *result = createVarAddr(temp_name, temp_type);
+
+            Instruction *instr = instruction_create(OP_DIV, src1, src2, result);
+            intermediate_code_append(global_code, instr);
+
+            (yyval.addr) = result;
+        }
+#line 1587 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 42: /* term: unary  */
+#line 326 "parser.y"
+        { 
+            printf("term -> unary\n"); 
+            (yyval.addr) = (yyvsp[0].addr);
+        }
+#line 1596 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 43: /* unary: NOT unary  */
+#line 334 "parser.y"
+        { printf("unary -> ! unary\n"); }
+#line 1602 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 44: /* unary: MINUS unary  */
+#line 336 "parser.y"
+        { printf("unary -> - unary\n"); }
+#line 1608 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 45: /* unary: factor  */
+#line 338 "parser.y"
+        { printf("unary -> factor\n"); }
+#line 1614 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 46: /* factor: LEFTPARAN bool RIGHTPARAN  */
+#line 343 "parser.y"
+        { 
+            printf("factor -> ( bool )\n");
+            (yyval.addr) = (yyvsp[-1].addr);
+        }
+#line 1623 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 47: /* factor: loc  */
+#line 348 "parser.y"
+        { 
+            printf("factor -> loc\n"); 
+            Address *loc_addr = (yyvsp[0].addr);
+            
+            // Check if loc is a temporary address (an array element address)
+            if (loc_addr && loc_addr->type == ADDR_VARIABLE && loc_addr->data.variable.name[0] == 't') {
+                BaseType result_basetype = get_address_type(loc_addr);
+                char *temp_load_name = create_temp(current_env, result_basetype, NULL, 0);
+                TypeRecord *temp_load_type = env_get(current_env, temp_load_name);
+                Address *temp_load_addr = createVarAddr(temp_load_name, temp_load_type);
+                
+                Instruction *instr = instruction_create(OP_LOAD, loc_addr, NULL, temp_load_addr);
+                intermediate_code_append(global_code, instr);
+                
+                (yyval.addr) = temp_load_addr; // Return the address of the loaded value
+            } else {
+                // It's a simple variable (i, j, v, x), just return its address
+                (yyval.addr) = loc_addr;
+            }
+        }
+#line 1648 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 48: /* factor: NUM  */
+#line 369 "parser.y"
+        { 
+            printf("factor -> NUM\n"); 
+            (yyval.addr) = createIntAddr((yyvsp[0].num));
+        }
+#line 1657 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 49: /* factor: REAL  */
+#line 374 "parser.y"
+        { 
+            printf("factor -> REAL\n"); 
+            (yyval.addr) = createFloatAddr((yyvsp[0].real));
+        }
+#line 1666 "/home/lstanchak/Assignment2/build/parser.tab.c"
+    break;
+
+  case 50: /* factor: BOOLCONST  */
+#line 379 "parser.y"
         { printf("factor -> BOOLCONST\n"); }
-#line 1594 "parser.tab.c"
+#line 1672 "/home/lstanchak/Assignment2/build/parser.tab.c"
     break;
 
 
-#line 1598 "parser.tab.c"
+#line 1676 "/home/lstanchak/Assignment2/build/parser.tab.c"
 
       default: break;
     }
@@ -1787,18 +1865,31 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 229 "parser.y"
+#line 382 "parser.y"
 
 
 void yyerror(const char *s) { //Completely stops parsing if error is not recoverable.
     fprintf(stderr, "Syntax error: %s\n", s);
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     printf("Starting parse...\n");
 
-    current_env = env_create_global();
+    if (argc != 2) {
+            fprintf(stderr, "Usage: %s <input_file_path>\n", argv[0]);
+            exit(1); 
+        }
 
+    // Open the specified file for reading
+    FILE *input_file = fopen(argv[1], "r");
+    if (input_file == NULL) {
+        perror("Error opening input file");
+        exit(1);
+    }
+
+    yyin = input_file;
+    current_env = env_create_global();
+    global_code = intermediate_code_create();
     int result = yyparse();
 
     if (result != 0) {
@@ -1809,6 +1900,7 @@ int main(void) {
     printf("\nParsing complete.\n");
     printf("\nFinal symbol table:\n");
     env_print_table(current_env);
-    
+    intermediate_code_print(global_code);
+    fclose(input_file);
     return 0;
 }
