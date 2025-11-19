@@ -22,6 +22,7 @@ typedef struct {
     char *key;            // identifier name
     TypeRecord *value;    // type info
     bool is_temp;
+    long address;
 } Entry;
 
 // Symbol table (Env equivalent)
@@ -137,4 +138,11 @@ BaseType max_type(BaseType t1, BaseType t2);
 BaseType get_address_type(Address *addr);
 
 size_t get_element_width(TypeRecord *type);
+
+//Assignment 5 Address related functions
+long calculate_offset(Env *env, const char *var_name);
+long calculate_base_address(Env *env);
+long calculate_activation_record_size(Env *env);
+long calculate_variable_size(Env *env, const char *var_name);  
+void env_print_scope(Env *env);
 #endif

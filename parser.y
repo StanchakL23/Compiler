@@ -57,7 +57,7 @@ block
     : LEFTBRACE { current_env = env_create(current_env); } decls stmts RIGHTBRACE
         { 
             printf("block -> decls stmts\n");
-            env_print_trail(current_env);
+            env_print_scope(current_env);
             current_env = current_env->prev; 
         }
     ;

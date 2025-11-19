@@ -1208,7 +1208,7 @@ yyreduce:
 #line 58 "parser.y"
         { 
             printf("block -> decls stmts\n");
-            env_print_trail(current_env);
+            env_print_scope(current_env);
             current_env = current_env->prev; 
         }
 #line 1215 "/home/lstanchak/Assignment2/build/parser.tab.c"
