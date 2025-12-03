@@ -95,7 +95,9 @@ typedef enum {
     OP_ARRAY_ACCESS,  // Array indexing
     OP_ADDR_CALC,     // Address calculation for arrays
     OP_LOAD,
-    OP_STORE
+    OP_STORE,
+    OP_LEFT_SHIFT,
+    OP_RIGHT_SHIFT
 } OpCode;
 
 // Instruction structure
@@ -145,4 +147,11 @@ long calculate_base_address(Env *env);
 long calculate_activation_record_size(Env *env);
 long calculate_variable_size(Env *env, const char *var_name);  
 void env_print_scope(Env *env);
+
+//Assignment 6 Strength reduction and helpers:
+bool is_power_of_two(int n); //check if n is power of 2
+int log2_int(int n); //find multiple of 2 if so
+int is_power_of_two_plus_one(int n); //check if n is 2^k + 1
+int is_power_of_two_minus_one(int n); //check if n is 2^k - 1
+void strength_reduction(IntermediateCode *code, Env *env);
 #endif

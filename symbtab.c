@@ -319,6 +319,8 @@ const char* opcode_to_string(OpCode op) {
         case OP_ADDR_CALC: return "ADDR";
         case OP_LOAD: return "LOAD";
         case OP_STORE: return "STORE";
+        case OP_LEFT_SHIFT: return "<<";
+        case OP_RIGHT_SHIFT: return ">>";
         default: return "UNKNOWN";
     }
 }
@@ -376,7 +378,10 @@ void intermediate_code_print(IntermediateCode *code) {
         } else if (current->op == OP_STORE) { // <-- NEW
             // STORE Source DestinationAddress
             printf("STORE %s %s\n", src1_str, result_str);
-        }else if (current->src2 != NULL) {
+        } else if (current->op == OP_LEFT_SHIFT || current->op == OP_RIGHT_SHIFT) {
+            // Shift operations
+            printf("%s = %s %s %s\n", result_str, src1_str, opcode_to_string(current->op), src2_str);
+        } else if (current->src2 != NULL) {
             // Binary operations
             printf("%s = %s %s %s\n", result_str, src1_str, opcode_to_string(current->op), src2_str);
         } else {
@@ -548,3 +553,120 @@ void env_print_scope(Env *env) {
     printf("====================================\n");
 }
 
+bool is_power_of_two(int n) {
+    if( n <= 0 ) return false;
+    return (n & (n - 1)) == 0; //bitwise comparison, if 0100 and 1011, then true.
+}
+
+int log2_int(int n) {
+    int i = 0;
+    while (n > 1) {
+        n = n >> 1; //right shift by 1 until n is 0
+        i++;
+    }
+    return i;
+}
+
+int is_power_of_two_plus_one(int n) {
+    if( n <= 1 ) return -1;
+    if( is_power_of_two(n - 1) ) { return log2_int(n - 1); }
+    return -1;
+}
+
+int is_power_of_two_minus_one(int n) {
+    if( n <= 1 ) return -1;
+    if( is_power_of_two(n + 1) ) { return log2_int(n + 1); }
+    return -1;
+}
+
+void strength_reduction(IntermediateCode *code, Env *env) {
+    if (!code || !env) return;
+    
+    Instruction *current = code->head;
+    Instruction *prev = NULL;
+    
+    while (current != NULL) {
+        Instruction *next = current->next;
+        
+        // Case 1 & 3: MUL/DIV by power of 2 → shift
+        if ((current->op == OP_MUL || current->op == OP_DIV) && 
+            current->src2 && 
+            current->src2->type == ADDR_CONSTANT && 
+            current->src2->data.constant.const_type == CONST_INT) {
+            
+            int constant = current->src2->data.constant.value.int_val;
+            
+            if (is_power_of_two(constant)) {
+                int shift_amount = log2_int(constant);
+                current->src2->data.constant.value.int_val = shift_amount;
+                
+                if (current->op == OP_MUL) {
+                    current->op = OP_LEFT_SHIFT;
+                    printf("Strength reduction: MUL by %d → LEFT_SHIFT by %d\n",
+                           constant, shift_amount);
+                } else {
+                    current->op = OP_RIGHT_SHIFT;
+                    printf("Strength reduction: DIV by %d → RIGHT_SHIFT by %d\n",
+                           constant, shift_amount);
+                }
+            }
+            // Case 2: MUL by (2^k +/- 1)
+            else if (current->op == OP_MUL) {
+                int k_plus = is_power_of_two_plus_one(constant);
+                int k_minus = is_power_of_two_minus_one(constant);
+                
+                if (k_plus >= 0 || k_minus >= 0) {
+                    int k = (k_plus >= 0) ? k_plus : k_minus;
+                    bool is_plus = (k_plus >= 0);
+                    
+                    // Save original operand
+                    Address *original_x = current->src1;
+                    
+                    // Create temporary for shift result
+                    char *temp_name = create_temp(env, get_address_type(original_x), NULL, 0);
+                    TypeRecord *temp_type = env_get(env, temp_name);
+                    Address *temp_addr = createVarAddr(temp_name, temp_type);
+                    
+                    // Create shift instruction: t1 = x << k
+                    Address *shift_const = createIntAddr(k);
+                    Instruction *shift_instr = instruction_create(
+                        OP_LEFT_SHIFT, 
+                        original_x,
+                        shift_const,
+                        temp_addr
+                    );
+                    
+                    // Insert shift before current
+                    shift_instr->next = current;
+                    if (prev) {
+                        prev->next = shift_instr;
+                    } else {
+                        code->head = shift_instr;
+                    }
+                    code->instruction_count++;
+                    
+                    // Transform current to: result = t1 +/- x
+                    if (is_plus) {
+                        current->op = OP_ADD;
+                        printf("Strength reduction: MUL by %d (2^%d+1) → SHIFT + ADD\n",
+                               constant, k);
+                    } else {
+                        current->op = OP_SUB;
+                        printf("Strength reduction: MUL by %d (2^%d-1) → SHIFT + SUB\n",
+                               constant, k);
+                    }
+                    
+                    current->src1 = temp_addr;
+                    current->src2 = original_x;
+                    
+                    prev = shift_instr;
+                }
+            }
+        }
+        
+        if (prev != current) {
+            prev = current;
+        }
+        current = next;
+    }
+}

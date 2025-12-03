@@ -411,6 +411,9 @@ int main(int argc, char *argv[]) {
     }
 
     printf("\nParsing complete.\n");
+    printf("Applying strength reduction:\n");
+    strength_reduction(global_code, current_env);
+    printf("Strength reduction complete.\n");
     printf("\nFinal symbol table:\n");
     env_print_table(current_env);
     intermediate_code_print(global_code);
