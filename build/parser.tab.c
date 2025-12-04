@@ -1295,7 +1295,7 @@ yyreduce:
             }
             
             // Note: src2 is NULL for both
-            Instruction *instr = instruction_create(op, source_addr, NULL, destination_addr);
+            Instruction *instr = instruction_create(op, source_addr, NULL, destination_addr, current_env);
             intermediate_code_append(global_code, instr);
         }
 #line 1302 "/home/lstanchak/Assignment2/build/parser.tab.c"
@@ -1379,7 +1379,7 @@ yyreduce:
 
                 Address *width_addr = createIntAddr(element_width); 
 
-                Instruction *mul_instr = instruction_create(OP_MUL, index_addr, width_addr, temp_offset_addr);
+                Instruction *mul_instr = instruction_create(OP_MUL, index_addr, width_addr, temp_offset_addr, current_env);
                 intermediate_code_append(global_code, mul_instr);
                 
                 BaseType result_basetype = array_type->base_type;
@@ -1388,7 +1388,7 @@ yyreduce:
                 TypeRecord *temp_final_type = env_get(current_env, temp_final_name);
                 Address *temp_final_addr = createVarAddr(temp_final_name, temp_final_type);
 
-                Instruction *add_instr = instruction_create(OP_ADD, base_addr, temp_offset_addr, temp_final_addr);
+                Instruction *add_instr = instruction_create(OP_ADD, base_addr, temp_offset_addr, temp_final_addr, current_env);
                 intermediate_code_append(global_code, add_instr);
                 
                 (yyval.addr) = temp_final_addr;
@@ -1500,7 +1500,7 @@ yyreduce:
             TypeRecord *temp_type = env_get(current_env, temp_name);
             Address *result = createVarAddr(temp_name, temp_type);
 
-            Instruction *instr = instruction_create(OP_ADD, src1, src2, result);
+            Instruction *instr = instruction_create(OP_ADD, src1, src2, result, current_env);
             intermediate_code_append(global_code, instr);
 
             (yyval.addr) = result;
@@ -1523,7 +1523,7 @@ yyreduce:
             TypeRecord *temp_type = env_get(current_env, temp_name);
             Address *result = createVarAddr(temp_name, temp_type);
 
-            Instruction *instr = instruction_create(OP_SUB, src1, src2, result);
+            Instruction *instr = instruction_create(OP_SUB, src1, src2, result, current_env);
             intermediate_code_append(global_code, instr);
 
             (yyval.addr) = result;
@@ -1555,7 +1555,7 @@ yyreduce:
             TypeRecord *temp_type = env_get(current_env, temp_name);
             Address *result = createVarAddr(temp_name, temp_type);
 
-            Instruction *instr = instruction_create(OP_MUL, src1, src2, result);
+            Instruction *instr = instruction_create(OP_MUL, src1, src2, result, current_env);
             intermediate_code_append(global_code, instr);
 
             (yyval.addr) = result;
@@ -1578,7 +1578,7 @@ yyreduce:
             TypeRecord *temp_type = env_get(current_env, temp_name);
             Address *result = createVarAddr(temp_name, temp_type);
 
-            Instruction *instr = instruction_create(OP_DIV, src1, src2, result);
+            Instruction *instr = instruction_create(OP_DIV, src1, src2, result, current_env);
             intermediate_code_append(global_code, instr);
 
             (yyval.addr) = result;
@@ -1635,7 +1635,7 @@ yyreduce:
                 TypeRecord *temp_load_type = env_get(current_env, temp_load_name);
                 Address *temp_load_addr = createVarAddr(temp_load_name, temp_load_type);
                 
-                Instruction *instr = instruction_create(OP_LOAD, loc_addr, NULL, temp_load_addr);
+                Instruction *instr = instruction_create(OP_LOAD, loc_addr, NULL, temp_load_addr, current_env);
                 intermediate_code_append(global_code, instr);
                 
                 (yyval.addr) = temp_load_addr; // Return the address of the loaded value

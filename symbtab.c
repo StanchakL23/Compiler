@@ -326,11 +326,12 @@ const char* opcode_to_string(OpCode op) {
 }
 
 // Create a new instruction
-Instruction* instruction_create(OpCode op, Address *src1, Address *src2, Address *result) {
+Instruction* instruction_create(OpCode op, Address *src1, Address *src2, Address *result, Env *env) {
     Instruction *instr = malloc(sizeof(Instruction));
     instr->op = op;
     instr->src1 = src1;
     instr->src2 = src2;
+    instr->env = env;
     instr->result = result;
     instr->next = NULL;
     return instr;
@@ -431,7 +432,7 @@ Address* widen(Env *env, Address *addr, BaseType t, BaseType w, IntermediateCode
         TypeRecord *temp_type = env_get(env, temp_name);
         Address *temp = createVarAddr(temp_name, temp_type);
         
-        Instruction *convert = instruction_create(OP_ASSIGN, addr, NULL, temp);
+        Instruction *convert = instruction_create(OP_ASSIGN, addr, NULL, temp, env);
         if (code) {
             intermediate_code_append(code, convert);
         }
@@ -588,18 +589,43 @@ void strength_reduction(IntermediateCode *code, Env *env) {
     while (current != NULL) {
         Instruction *next = current->next;
         
-        // Case 1 & 3: MUL/DIV by power of 2 → shift
-        if ((current->op == OP_MUL || current->op == OP_DIV) && 
-            current->src2 && 
-            current->src2->type == ADDR_CONSTANT && 
-            current->src2->data.constant.const_type == CONST_INT) {
+        // determine constant and variable addresses
+        Address *const_addr = NULL;
+        Address *var_addr = NULL;
+        bool const_is_src2 = false;
+        
+        if (current->op == OP_MUL || current->op == OP_DIV) {
+            //check type of src2
+            if (current->src2 && 
+                current->src2->type == ADDR_CONSTANT && 
+                current->src2->data.constant.const_type == CONST_INT) {
+                const_addr = current->src2;
+                var_addr = current->src1;
+                const_is_src2 = true;
+            }
             
-            int constant = current->src2->data.constant.value.int_val;
+            else if (current->op == OP_MUL &&
+                     current->src1 && 
+                     current->src1->type == ADDR_CONSTANT && 
+                     current->src1->data.constant.const_type == CONST_INT) {
+                const_addr = current->src1;
+                var_addr = current->src2;
+                const_is_src2 = false;
+            }
+        }
+        
+        if (const_addr) {
+            int constant = const_addr->data.constant.value.int_val;
             
+            // cases 1 & 3: MUL/DIV
             if (is_power_of_two(constant)) {
                 int shift_amount = log2_int(constant);
-                current->src2->data.constant.value.int_val = shift_amount;
+                const_addr->data.constant.value.int_val = shift_amount;
                 
+                current->src1 = var_addr;
+                current->src2 = const_addr;
+                
+                //overwrite with new operation
                 if (current->op == OP_MUL) {
                     current->op = OP_LEFT_SHIFT;
                     printf("Strength reduction: MUL by %d → LEFT_SHIFT by %d\n",
@@ -610,7 +636,7 @@ void strength_reduction(IntermediateCode *code, Env *env) {
                            constant, shift_amount);
                 }
             }
-            // Case 2: MUL by (2^k +/- 1)
+            // case 2: MUL by (2^k +/- 1)
             else if (current->op == OP_MUL) {
                 int k_plus = is_power_of_two_plus_one(constant);
                 int k_minus = is_power_of_two_minus_one(constant);
@@ -618,25 +644,25 @@ void strength_reduction(IntermediateCode *code, Env *env) {
                 if (k_plus >= 0 || k_minus >= 0) {
                     int k = (k_plus >= 0) ? k_plus : k_minus;
                     bool is_plus = (k_plus >= 0);
+        
+                    Address *original_x = var_addr;
                     
-                    // Save original operand
-                    Address *original_x = current->src1;
-                    
-                    // Create temporary for shift result
-                    char *temp_name = create_temp(env, get_address_type(original_x), NULL, 0);
+                    Env *inst_env = current->env ? current->env : env;
+                    char *temp_name = create_temp(inst_env, get_address_type(original_x), NULL, 0);
                     TypeRecord *temp_type = env_get(env, temp_name);
                     Address *temp_addr = createVarAddr(temp_name, temp_type);
                     
-                    // Create shift instruction: t1 = x << k
+                    // Create shift instruction
                     Address *shift_const = createIntAddr(k);
                     Instruction *shift_instr = instruction_create(
-                        OP_LEFT_SHIFT, 
+                        OP_LEFT_SHIFT,
                         original_x,
                         shift_const,
-                        temp_addr
+                        temp_addr,
+                        inst_env
                     );
                     
-                    // Insert shift before current
+                    
                     shift_instr->next = current;
                     if (prev) {
                         prev->next = shift_instr;
@@ -645,7 +671,7 @@ void strength_reduction(IntermediateCode *code, Env *env) {
                     }
                     code->instruction_count++;
                     
-                    // Transform current to: result = t1 +/- x
+                    //overwrite with new operation
                     if (is_plus) {
                         current->op = OP_ADD;
                         printf("Strength reduction: MUL by %d (2^%d+1) → SHIFT + ADD\n",

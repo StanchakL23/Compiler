@@ -106,6 +106,7 @@ typedef struct Instruction {
     Address *src1;
     Address *src2;
     Address *result;
+    Env *env;
     struct Instruction *next;  // for linked list
 } Instruction;
 
@@ -118,7 +119,7 @@ typedef struct {
 
 // Instruction operations
 const char* opcode_to_string(OpCode op);
-Instruction* instruction_create(OpCode op, Address *src1, Address *src2, Address *result);
+Instruction* instruction_create(OpCode op, Address *src1, Address *src2, Address *result, Env *env);
 IntermediateCode* intermediate_code_create();
 void intermediate_code_append(IntermediateCode *code, Instruction *instr);
 void intermediate_code_print(IntermediateCode *code);
